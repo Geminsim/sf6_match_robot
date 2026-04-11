@@ -60,3 +60,4 @@ data/*.db
 data/*.sqlite
 data/*.sqlite3
 !data/.gitkeep
+.env.example
