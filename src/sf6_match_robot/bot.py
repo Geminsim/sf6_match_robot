@@ -30,7 +30,14 @@ class SF6MatchBot(commands.Bot):
         self.config = config
 
     async def setup_hook(self) -> None:
+        await self._init_database()
         await self._load_cogs()
+
+        # Register persistent views for button survival across restarts
+        from sf6_match_robot.views.registration_view import RegistrationView
+        # Note: ReportView and ConfirmResultView usually need dynamic custom_ids mapped to match tags.
+        # For this setup we will register the static forms if needed, but discord.py typically allows fallback views.
+        self.add_view(RegistrationView())
 
         if self.config.guild_id is not None:
             guild = discord.Object(id=self.config.guild_id)
@@ -56,3 +63,8 @@ class SF6MatchBot(commands.Bot):
         user = self.user
         if user is not None:
             log.info("Logged in as %s (id=%s)", user, user.id)
+
+    async def _init_database(self) -> None:
+        """Initialize database tables."""
+        from sf6_match_robot.db.connection import init_db
+        await init_db(self.config.database_url)
